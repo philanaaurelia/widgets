@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greeting Banner Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .banner-container {
+            width: 100%;
+            /* max-width: 480px; */
+            min-width: 300px;
+            height: auto;
+            margin: 20px auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            border-radius: 6px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .greeting.morning {
+            color: #f6ad55;
+        }
+
+        .greeting.afternoon {
+            color: #4a5568;
+        }
+
+        .greeting.evening {
+            color: #553c9a;
+        }
+
+        .date {
+            font-size: 16px;
+            color: #4a5568;
+            margin-bottom: 16px;
+            font-weight: 400;
+        }
+
+        .bible-verse-container {
+            background: #f7fafc;
+            border-radius: 4px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .bible-verse {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2d3748;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .bible-reference {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .divider {
+            width: 40px;
+            height: 2px;
+            background: #e2e8f0;
+            margin: 16px auto;
+            border-radius: 2px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .banner-container {
+                padding: 16px;
+                max-width: 100%;
+                margin: 10px auto;
+            }
+            
+            .greeting {
+                font-size: 20px;
+            }
+            
+            .date {
+                font-size: 14px;
+            }
+            
+            .bible-verse {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner-container">
+        <div class="greeting" id="greeting">Good Morning</div>
+        <div class="date" id="currentDate">Friday, June 13, 2025</div>
+    </div>
+
+    <script>
+        class GreetingBanner {
+            constructor() {
+                
+                this.initializeElements();
+                this.updateBanner();
+                
+                // Update every minute to catch time changes
+                setInterval(() => this.updateBanner(), 60000);
+            }
+            
+            initializeElements() {
+                this.greetingEl = document.getElementById('greeting');
+                this.dateEl = document.getElementById('currentDate');
+            }
+            
+            getTimeBasedGreeting() {
+                const now = new Date();
+                const hour = now.getHours();
+                
+                if (hour >= 4 && hour < 12) {
+                    return { text: 'Good Morning', class: 'morning' };
+                } else if (hour >= 12 && hour < 18) {
+                    return { text: 'Good Afternoon', class: 'afternoon' };
+                } else {
+                    return { text: 'Good Evening', class: 'evening' };
+                }
+            }
+            
+            getCurrentDate() {
+                const now = new Date();
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                return now.toLocaleDateString('en-US', options);
+            }
+            
+            updateBanner() {
+                // Update greeting
+                const greeting = this.getTimeBasedGreeting();
+                this.greetingEl.textContent = greeting.text;
+                this.greetingEl.className = `greeting ${greeting.class}`;
+                
+                // Update date
+                this.dateEl.textContent = this.getCurrentDate();
+            }
+        }
+        
+        // Initialize banner when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new GreetingBanner();
+        });
+    </script>
+</body>
+</html>
