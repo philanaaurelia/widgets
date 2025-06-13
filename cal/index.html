@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Calendar Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .calendar-container {
+            width: 100%;
+            max-width: 280px;
+            min-width: 200px;
+            height: auto;
+            margin: 20px auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            border-radius: 6px;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+            resize: both;
+            overflow: auto;
+        }
+
+        .calendar {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .nav-btn {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .month-year {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            text-align: center;
+            flex: 1;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            flex: 1;
+        }
+
+        .day-header {
+            background: #f7fafc;
+            color: #4a5568;
+            font-size: 10px;
+            font-weight: 600;
+            text-align: center;
+            padding: 6px 2px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .day-cell {
+            background: #fff;
+            border: none;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 400;
+            color: #2d3748;
+            transition: all 0.2s ease;
+            aspect-ratio: 1;
+            min-height: 20px;
+        }
+
+        .day-cell:hover {
+            background: #f7fafc;
+        }
+
+        .day-cell.other-month {
+            color: #cbd5e0;
+            background: #f7fafc;
+        }
+
+        .day-cell.today {
+            background: #4a5568;
+            color: white;
+            font-weight: 600;
+        }
+
+        .day-cell.selected {
+            background: #2d3748;
+            color: white;
+        }
+
+        .day-cell.has-event {
+            position: relative;
+        }
+
+        .day-cell.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: #f56565;
+            border-radius: 50%;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 300px) {
+            .calendar-container {
+                padding: 8px;
+            }
+            
+            .calendar {
+                padding: 6px;
+            }
+            
+            .month-year {
+                font-size: 14px;
+            }
+            
+            .nav-btn {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+            }
+            
+            .day-header {
+                font-size: 8px;
+                padding: 4px 1px;
+            }
+            
+            .day-cell {
+                font-size: 9px;
+                min-height: 16px;
+            }
+        }
+
+        .resize-handle {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container" id="calendarContainer">
+        <div class="calendar">
+            <div class="calendar-header">
+                <button class="nav-btn" id="prevBtn">‹</button>
+                <div class="month-year" id="monthYear"></div>
+                <button class="nav-btn" id="nextBtn">›</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+        <div class="resize-handle"></div>
+    </div>
+
+    <script>
+        class ResponsiveCalendar {
+            constructor() {
+                this.currentDate = new Date(); // This will show current month/year
+                this.selectedDate = new Date(); // Set today as initially selected
+                this.events = {
+                    '2025-06-15': 'Meeting',
+                    '2025-06-20': 'Birthday',
+                    '2025-06-25': 'Vacation'
+                };
+                
+                this.monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                
+                this.dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                
+                this.initializeElements();
+                this.attachEventListeners();
+                this.render();
+            }
+            
+            initializeElements() {
+                this.monthYearEl = document.getElementById('monthYear');
+                this.calendarGridEl = document.getElementById('calendarGrid');
+                this.prevBtnEl = document.getElementById('prevBtn');
+                this.nextBtnEl = document.getElementById('nextBtn');
+            }
+            
+            attachEventListeners() {
+                this.prevBtnEl.addEventListener('click', () => this.previousMonth());
+                this.nextBtnEl.addEventListener('click', () => this.nextMonth());
+            }
+            
+            previousMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                this.render();
+            }
+            
+            nextMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                this.render();
+            }
+            
+            render() {
+                this.renderHeader();
+                this.renderCalendar();
+            }
+            
+            renderHeader() {
+                const month = this.monthNames[this.currentDate.getMonth()];
+                const year = this.currentDate.getFullYear();
+                this.monthYearEl.textContent = `${month} ${year}`;
+            }
+            
+            renderCalendar() {
+                this.calendarGridEl.innerHTML = '';
+                
+                // Render day headers
+                this.dayNames.forEach(day => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'day-header';
+                    dayHeader.textContent = day;
+                    this.calendarGridEl.appendChild(dayHeader);
+                });
+                
+                // Get first day of month and number of days
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                
+                // Calculate how many empty cells we need at the beginning
+                const startDayOfWeek = firstDay.getDay();
+                
+                // Add empty cells for days before the first day of the month
+                for (let i = 0; i < startDayOfWeek; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.className = 'day-cell';
+                    this.calendarGridEl.appendChild(emptyCell);
+                }
+                
+                // Add days of the current month
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const cellDate = new Date(year, month, day);
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    dayCell.textContent = day;
+                    
+                    if (this.isToday(cellDate)) {
+                        dayCell.classList.add('today');
+                    }
+                    
+                    if (this.selectedDate && this.isSameDate(cellDate, this.selectedDate)) {
+                        dayCell.classList.add('selected');
+                    }
+                    
+                    if (this.hasEvent(cellDate)) {
+                        dayCell.classList.add('has-event');
+                    }
+                    
+                    // Add click event
+                    dayCell.addEventListener('click', () => {
+                        // Remove previous selection
+                        document.querySelectorAll('.day-cell.selected').forEach(cell => {
+                            cell.classList.remove('selected');
+                        });
+                        
+                        // Add selection to clicked cell
+                        dayCell.classList.add('selected');
+                        this.selectedDate = new Date(cellDate);
+                    });
+                    
+                    this.calendarGridEl.appendChild(dayCell);
+                }
+            }
+            
+            isToday(date) {
+                const today = new Date();
+                return this.isSameDate(date, today);
+            }
+            
+            isSameDate(date1, date2) {
+                return date1.getDate() === date2.getDate() &&
+                       date1.getMonth() === date2.getMonth() &&
+                       date1.getFullYear() === date2.getFullYear();
+            }
+            
+            hasEvent(date) {
+                const dateStr = date.toISOString().split('T')[0];
+                return this.events.hasOwnProperty(dateStr);
+            }
+        }
+        
+        // Initialize calendar when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new ResponsiveCalendar();
+        });
+    </script>
+</body>
+</html>
