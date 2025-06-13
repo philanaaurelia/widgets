@@ -52,28 +52,6 @@
             font-weight: 400;
         }
 
-        .bible-verse-container {
-            background: #f7fafc;
-            border-radius: 4px;
-            padding: 16px;
-            margin-top: 12px;
-        }
-
-        .bible-verse {
-            font-size: 14px;
-            line-height: 1.5;
-            color: #2d3748;
-            font-style: italic;
-            margin-bottom: 8px;
-        }
-
-        .bible-reference {
-            font-size: 12px;
-            color: #718096;
-            font-weight: 500;
-            text-align: right;
-        }
-
         .divider {
             width: 40px;
             height: 2px;
@@ -106,7 +84,7 @@
 </head>
 <body>
     <div class="banner-container">
-        <div class="greeting" id="greeting">Good Morning</div>
+        <div class="greeting" id="greeting">☀️Good Morning, Philana</div>
         <div class="date" id="currentDate">Friday, June 13, 2025</div>
     </div>
 
@@ -131,11 +109,11 @@
                 const hour = now.getHours();
                 
                 if (hour >= 4 && hour < 12) {
-                    return { text: 'Good Morning', class: 'morning' };
+                    return { text: '☀️Good Morning, Philana.', class: 'morning' };
                 } else if (hour >= 12 && hour < 18) {
-                    return { text: 'Good Afternoon', class: 'afternoon' };
+                    return { text: '☁️Good Afternoon, Philana.', class: 'afternoon' };
                 } else {
-                    return { text: 'Good Evening', class: 'evening' };
+                    return { text: '🌙Good Evening, Philana.', class: 'evening' };
                 }
             }
             
