@@ -12,8 +12,9 @@
         }
 
         .banner-container {
-            width: 99%;
-            min-width: 100px;
+            width: 100%;
+            /* max-width: 480px; */
+            min-width: 300px;
             height: auto;
             margin: 20px auto;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -55,6 +56,7 @@
             background: #f7fafc;
             border-radius: 4px;
             padding: 16px;
+            margin-top: 12px;
         }
 
         .bible-verse {
@@ -104,6 +106,9 @@
 </head>
 <body>
     <div class="banner-container">
+        <div class="greeting" id="greeting">Good Morning</div>
+        <div class="date" id="currentDate">Friday, June 13, 2025</div>
+        <div class="divider"></div>
         <div class="bible-verse-container">
             <div class="bible-verse" id="bibleVerse">"For I know the plans I have for you," declares the Lord, "plans to prosper you and not to harm you, to give you hope and a future."</div>
             <div class="bible-reference" id="bibleReference">Jeremiah 29:11</div>
@@ -248,10 +253,25 @@
             }
             
             initializeElements() {
+                this.greetingEl = document.getElementById('greeting');
+                this.dateEl = document.getElementById('currentDate');
                 this.bibleVerseEl = document.getElementById('bibleVerse');
                 this.bibleReferenceEl = document.getElementById('bibleReference');
             }
-
+            
+            getTimeBasedGreeting() {
+                const now = new Date();
+                const hour = now.getHours();
+                
+                if (hour >= 4 && hour < 12) {
+                    return { text: 'Good Morning', class: 'morning' };
+                } else if (hour >= 12 && hour < 18) {
+                    return { text: 'Good Afternoon', class: 'afternoon' };
+                } else {
+                    return { text: 'Good Evening', class: 'evening' };
+                }
+            }
+            
             getCurrentDate() {
                 const now = new Date();
                 const options = { 
@@ -271,6 +291,10 @@
             }
             
             updateBanner() {
+                // Update greeting
+                const greeting = this.getTimeBasedGreeting();
+                this.greetingEl.textContent = greeting.text;
+                this.greetingEl.className = `greeting ${greeting.class}`;
                 
                 // Update date
                 this.dateEl.textContent = this.getCurrentDate();
