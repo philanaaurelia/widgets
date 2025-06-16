@@ -248,25 +248,10 @@
             }
             
             initializeElements() {
-                this.greetingEl = document.getElementById('greeting');
-                this.dateEl = document.getElementById('currentDate');
                 this.bibleVerseEl = document.getElementById('bibleVerse');
                 this.bibleReferenceEl = document.getElementById('bibleReference');
             }
-            
-            getTimeBasedGreeting() {
-                const now = new Date();
-                const hour = now.getHours();
-                
-                if (hour >= 4 && hour < 12) {
-                    return { text: 'Good Morning', class: 'morning' };
-                } else if (hour >= 12 && hour < 18) {
-                    return { text: 'Good Afternoon', class: 'afternoon' };
-                } else {
-                    return { text: 'Good Evening', class: 'evening' };
-                }
-            }
-            
+
             getCurrentDate() {
                 const now = new Date();
                 const options = { 
@@ -286,10 +271,6 @@
             }
             
             updateBanner() {
-                // Update greeting
-                const greeting = this.getTimeBasedGreeting();
-                this.greetingEl.textContent = greeting.text;
-                this.greetingEl.className = `greeting ${greeting.class}`;
                 
                 // Update date
                 this.dateEl.textContent = this.getCurrentDate();
