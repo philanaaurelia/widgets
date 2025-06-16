@@ -235,8 +235,12 @@
                 this.updateBanner();
                 this.updateClock();
                 
-                // Update every minute to catch time changes
-                setInterval(() => this.updateBanner(), 60000);
+                // Update every second for smooth clock movement
+
+                setInterval(() => {
+                    this.updateBanner();
+                    this.updateClock();
+                }, 1000);
             }
             
             initializeElements() {
