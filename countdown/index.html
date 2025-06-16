@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .timer-widget {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            height: 140px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .timer-display {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .time-value {
+            font-size: 32px;
+            font-weight: 300;
+            color: #495057;
+            letter-spacing: 1px;
+        }
+
+        .time-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .time-adjust {
+            background: none;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .time-adjust:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+        }
+
+        .time-adjust:active {
+            background: #e9ecef;
+        }
+
+        .controls-section {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: none;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .control-btn:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+        }
+
+        .control-btn.primary {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .control-btn.primary:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+
+        .control-btn.secondary:hover {
+            background: #545b62;
+            border-color: #545b62;
+        }
+
+        .control-btn.danger {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .control-btn.danger:hover {
+            background: #c82333;
+            border-color: #c82333;
+        }
+
+        .presets-section {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .preset-btn {
+            background: none;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .preset-btn:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+        }
+
+        .timer-widget.expired {
+            border-color: #dc3545;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.2);
+        }
+
+        .timer-widget.expired .time-value {
+            color: #dc3545;
+        }
+
+        @media (max-width: 480px) {
+            .timer-widget {
+                max-width: 100%;
+                padding: 16px;
+            }
+            
+            .time-value {
+                font-size: 28px;
+            }
+            
+            .controls-section {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            
+            .control-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+            
+            .presets-section {
+                gap: 4px;
+            }
+            
+            .preset-btn {
+                padding: 3px 6px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-widget" id="timerWidget">
+        <div class="timer-display">
+            <button class="time-adjust" id="decrementBtn">−</button>
+            <div class="time-value" id="timeDisplay">05:00</div>
+            <button class="time-adjust" id="incrementBtn">+</button>
+        </div>
+        
+        <div class="controls-section">
+            <button class="control-btn primary" id="toggleBtn">Start</button>
+            <button class="control-btn" id="stopBtn">Stop</button>
+            <button class="control-btn danger" id="resetBtn">Reset</button>
+        </div>
+        
+        <div class="presets-section">
+            <button class="preset-btn" data-minutes="5">5min</button>
+            <button class="preset-btn" data-minutes="10">10min</button>
+            <button class="preset-btn" data-minutes="20">20min</button>
+            <button class="preset-btn" data-minutes="30">30min</button>
+        </div>
+    </div>
+
+    <script>
+        class CountdownTimer {
+            constructor() {
+                this.totalSeconds = 300; // 5 minutes default
+                this.remainingSeconds = this.totalSeconds;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.intervalId = null;
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.updateDisplay();
+            }
+            
+            initializeElements() {
+                this.widget = document.getElementById('timerWidget');
+                this.display = document.getElementById('timeDisplay');
+                this.toggleBtn = document.getElementById('toggleBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.incrementBtn = document.getElementById('incrementBtn');
+                this.decrementBtn = document.getElementById('decrementBtn');
+                this.presetBtns = document.querySelectorAll('.preset-btn');
+            }
+            
+            bindEvents() {
+                this.toggleBtn.addEventListener('click', () => this.toggle());
+                this.stopBtn.addEventListener('click', () => this.stop());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                this.incrementBtn.addEventListener('click', () => this.adjustTime(60));
+                this.decrementBtn.addEventListener('click', () => this.adjustTime(-60));
+                
+                this.presetBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const minutes = parseInt(btn.dataset.minutes);
+                        this.setTime(minutes * 60);
+                    });
+                });
+            }
+            
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            updateDisplay() {
+                this.display.textContent = this.formatTime(this.remainingSeconds);
+                
+                // Update toggle button state and appearance
+                if (this.isRunning) {
+                    this.toggleBtn.textContent = 'Pause';
+                    this.toggleBtn.className = 'control-btn secondary';
+                } else if (this.isPaused) {
+                    this.toggleBtn.textContent = 'Resume';
+                    this.toggleBtn.className = 'control-btn primary';
+                } else {
+                    this.toggleBtn.textContent = 'Start';
+                    this.toggleBtn.className = 'control-btn primary';
+                }
+                
+                // Disable toggle button if timer is at 0
+                this.toggleBtn.disabled = this.remainingSeconds <= 0 && !this.isRunning;
+                
+                // Update other button states
+                this.stopBtn.disabled = !this.isRunning && !this.isPaused;
+                
+                // Disable time adjustment when running
+                this.incrementBtn.disabled = this.isRunning;
+                this.decrementBtn.disabled = this.isRunning || this.remainingSeconds <= 0;
+                
+                // Check if timer expired
+                if (this.remainingSeconds === 0 && !this.widget.classList.contains('expired')) {
+                    this.widget.classList.add('expired');
+                    this.onTimerExpired();
+                } else if (this.remainingSeconds > 0) {
+                    this.widget.classList.remove('expired');
+                }
+            }
+            
+            toggle() {
+                if (this.isRunning) {
+                    this.pause();
+                } else {
+                    this.start();
+                }
+            }
+            
+            start() {
+                if (this.remainingSeconds <= 0) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                
+                this.intervalId = setInterval(() => {
+                    this.remainingSeconds--;
+                    this.updateDisplay();
+                    
+                    if (this.remainingSeconds <= 0) {
+                        this.stop();
+                    }
+                }, 1000);
+                
+                this.updateDisplay();
+            }
+            
+            pause() {
+                if (!this.isRunning) return;
+                
+                this.isRunning = false;
+                this.isPaused = true;
+                clearInterval(this.intervalId);
+                this.updateDisplay();
+            }
+            
+            stop() {
+                this.isRunning = false;
+                this.isPaused = false;
+                clearInterval(this.intervalId);
+                this.updateDisplay();
+            }
+            
+            reset() {
+                this.stop();
+                this.remainingSeconds = this.totalSeconds;
+                this.widget.classList.remove('expired');
+                this.updateDisplay();
+            }
+            
+            setTime(seconds) {
+                if (this.isRunning) return;
+                
+                this.totalSeconds = seconds;
+                this.remainingSeconds = seconds;
+                this.widget.classList.remove('expired');
+                this.updateDisplay();
+            }
+            
+            adjustTime(seconds) {
+                if (this.isRunning) return;
+                
+                const newTime = Math.max(0, this.remainingSeconds + seconds);
+                this.remainingSeconds = newTime;
+                this.totalSeconds = newTime;
+                this.widget.classList.remove('expired');
+                this.updateDisplay();
+            }
+            
+            onTimerExpired() {
+                // You can add notification logic here
+                console.log('Timer expired!');
+                
+                // Optional: Play a sound or show notification
+                // if ('Notification' in window) {
+                //     new Notification('Timer Expired!', {
+                //         body: 'Your countdown timer has finished.',
+                //         icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjRkY2NTAwIi8+Cjwvc3ZnPgo='
+                //     });
+                // }
+            }
+        }
+        
+        // Initialize timer when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new CountdownTimer();
+        });
+    </script>
+</body>
+</html>
