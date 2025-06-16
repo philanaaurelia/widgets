@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Greeting Banner Widget</title>
+    <title>Bible Verse Widget</title>
     <style>
         * {
             margin: 0;
@@ -249,34 +249,8 @@
             }
             
             initializeElements() {
-                this.greetingEl = document.getElementById('greeting');
-                this.dateEl = document.getElementById('currentDate');
                 this.bibleVerseEl = document.getElementById('bibleVerse');
                 this.bibleReferenceEl = document.getElementById('bibleReference');
-            }
-            
-            getTimeBasedGreeting() {
-                const now = new Date();
-                const hour = now.getHours();
-                
-                if (hour >= 4 && hour < 12) {
-                    return { text: 'Good Morning', class: 'morning' };
-                } else if (hour >= 12 && hour < 18) {
-                    return { text: 'Good Afternoon', class: 'afternoon' };
-                } else {
-                    return { text: 'Good Evening', class: 'evening' };
-                }
-            }
-            
-            getCurrentDate() {
-                const now = new Date();
-                const options = { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                };
-                return now.toLocaleDateString('en-US', options);
             }
             
             getDailyBibleVerse() {
@@ -287,9 +261,6 @@
             }
             
             updateBanner() {
-                // Update greeting
-                const greeting = this.getTimeBasedGreeting();
-                
                 // Update Bible verse
                 const dailyVerse = this.getDailyBibleVerse();
                 this.bibleVerseEl.textContent = dailyVerse.verse;
