@@ -289,8 +289,6 @@
             updateBanner() {
                 // Update greeting
                 const greeting = this.getTimeBasedGreeting();
-                this.greetingEl.textContent = greeting.text;
-                this.greetingEl.className = `greeting ${greeting.class}`;
                 
                 // Update date
                 this.dateEl.textContent = this.getCurrentDate();
